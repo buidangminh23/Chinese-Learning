@@ -1,0 +1,17 @@
+{
+  "name": "汉语学堂 - Học Tiếng Trung",
+  "short_name": "汉语学堂",
+  "description": "Ứng dụng học tiếng Trung miễn phí với HSK 1-6, luyện nghe, viết, flashcard và mini game.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090e17",
+  "theme_color": "#00e5ff",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23090e17' width='100' height='100' rx='20'/><text x='50' y='68' text-anchor='middle' font-size='50'>汉</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
