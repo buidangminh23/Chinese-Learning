@@ -1080,7 +1080,7 @@ const RADICALS_DATA = [
  ['田','tián','ruộng'],['目','mù','mắt'],['石','shí','đá'],['禾','hé','lúa'],
  ['竹','zhú','tre'],['米','mǐ','gạo'],['糸','sī','tơ'],['纟','sī','tơ (bên)'],
  ['耳','ěr','tai'],['肉','ròu','thịt'],['艹','cǎo','cỏ'],['虫','chóng','sâu bọ'],
- ['衣','yī','áo'],['衤','yī','áo (bên)'],['言','yán','lời nói'],['讠','yán','lời (bên)'],
+ ['衣','yī','áo'],['衤','yī','áo (bên)'],['��','yán','lời nói'],['讠','yán','lời (bên)'],
  ['贝','bèi','vỏ sò'],['走','zǒu','đi bộ'],['足','zú','chân'],['车','chē','xe'],
  ['金','jīn','vàng'],['钅','jīn','kim (bên)'],['门','mén','cửa'],['雨','yǔ','mưa'],
  ['食','shí','ăn'],['饣','shí','ăn (bên)'],['马','mǎ','ngựa'],['鸟','niǎo','chim'],
@@ -1369,7 +1369,7 @@ function renderStats(){
    ${hskBars}
   </div>
   <div style="padding:20px;display:flex;gap:12px;flex-wrap:wrap">
-   <button class="btn btn-secondary btn-sm" onclick="exportProgress()">📤 Xuất tiến trình</button>
+   <button class="btn btn-secondary btn-sm" onclick="exportProgress()">📤 Xuất ti���n trình</button>
    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file').click()">📥 Nhập tiến trình</button>
    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importProgress(event)">
    <button class="btn btn-secondary btn-sm" onclick="if(confirm('Xóa toàn bộ tiến trình?')){localStorage.removeItem('hanzhi_state');location.reload()}">🗑️ Reset</button>
@@ -1636,5 +1636,12 @@ applyTheme();
 renderHome();
 console.log(`汉语学堂 loaded: ${ALL_WORDS.length} words across ${HSK_LEVELS.length} HSK levels`);
 </script>
+
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
 </body>
 </html>
