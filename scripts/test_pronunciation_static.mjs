@@ -6,6 +6,12 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const mustInclude = [
   'function speakChinese(text, options={})',
   'function stopChineseAudio()',
+  'const PRONUNCIATION_SOURCE',
+  "const PRONUNCIATION_SOURCE = 'systemFirst'",
+  'function speakWithSystemVoice(text, rate)',
+  'const preferSystemVoice',
+  'currentNativeAudio.volume=1',
+  'u.volume=1',
   'function speakNormal(text)',
   'function speakSlow(text)',
   'data-pronounce-mode="normal"',

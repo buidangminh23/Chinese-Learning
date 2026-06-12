@@ -1917,7 +1917,8 @@ function renderVocabList(){
 
 // ============ UTILITIES ============
 let currentNativeAudio = null;
-const PRONUNCIATION_RATES = { normal: 1, slow: 0.72, verySlow: 0.58 };
+const PRONUNCIATION_SOURCE = 'systemFirst';
+const PRONUNCIATION_RATES = { normal: 0.88, slow: 0.68, verySlow: 0.55 };
 
 function stopChineseAudio(){
  if(currentNativeAudio) { currentNativeAudio.pause(); currentNativeAudio.currentTime=0; currentNativeAudio=null; }
@@ -1929,10 +1930,20 @@ function speakChinese(text, options={}){
  const mode = options.mode || 'normal';
  const rate = options.rate || PRONUNCIATION_RATES[mode] || PRONUNCIATION_RATES.normal;
  stopChineseAudio();
+ const preferSystemVoice = PRONUNCIATION_SOURCE === 'systemFirst' && !!zhVoice;
+ if(preferSystemVoice){
+  speakWithSystemVoice(text, rate);
+  return;
+ }
  const url = "https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=zh-CN&q=" + encodeURIComponent(text);
  currentNativeAudio = new Audio(url);
+ currentNativeAudio.volume=1;
  currentNativeAudio.playbackRate = rate;
- currentNativeAudio.play().catch(e => { console.warn("Native audio failed, using browser voice:", e); speak(text, { rate }); });
+ currentNativeAudio.play().catch(e => { console.warn("Native audio failed, using browser voice:", e); speakWithSystemVoice(text, rate); });
+}
+
+function speakWithSystemVoice(text, rate){
+ speak(text, { rate, volume:1 });
 }
 
 function speakNormal(text){ speakChinese(text, { mode:'normal' }); }
@@ -1943,9 +1954,9 @@ let zhVoice=null;
 function loadChineseVoice(){
  if(!('speechSynthesis' in window)) return;
  const pickVoice=()=>{
-  const voices=speechSynthesis.getVoices();
-  zhVoice=voices.find(v=>v.lang==='zh-CN'&&/huihui|xiaoxiao|yunxi|xiaoyi/i.test(v.name))
-   ||voices.find(v=>v.lang==='zh-CN'&&/google|microsoft/i.test(v.name))
+ const voices=speechSynthesis.getVoices();
+  zhVoice=voices.find(v=>v.lang==='zh-CN'&&/xiaoxiao|huihui|yunxi|xiaoyi|xiaobei|xiaoni|xiaorui|xiaoxuan|tingting|mandarin|putonghua|普通话|中文/i.test(v.name))
+   ||voices.find(v=>v.lang==='zh-CN'&&/google|microsoft|natural|online/i.test(v.name))
    ||voices.find(v=>v.lang==='zh-CN')
    ||voices.find(v=>v.lang.startsWith('zh'))
    ||null;
@@ -1960,6 +1971,7 @@ function speak(text, options={}){
  speechSynthesis.cancel();
  const u=new SpeechSynthesisUtterance(text);
  u.lang='zh-CN'; u.rate=options.rate || 0.85; u.pitch=1;
+ u.volume=1;
  if(zhVoice) u.voice=zhVoice;
  speechSynthesis.speak(u);
 }
