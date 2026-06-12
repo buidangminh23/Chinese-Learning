@@ -17,6 +17,10 @@
   - Add shared `speakChinese`, `speakNormal`, `speakSlow`, `stopChineseAudio`, and updated `speakNative` compatibility wrapper.
   - Add vocabulary normal/slow controls.
   - Add listening normal/slow replay controls.
+- Modify: `sw.js`
+  - Bump cache name so deployed users receive the updated HTML.
+- Delete: `page-agent-init.js`
+  - Remove the unused Page Agent initializer after the demo script is removed.
 - Create: `scripts/test_pronunciation_static.mjs`
   - Reads `index.html`.
   - Asserts Page Agent scripts are gone.
@@ -29,7 +33,7 @@
 **Files:**
 - Create: `scripts/test_pronunciation_static.mjs`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `scripts/test_pronunciation_static.mjs`:
 
@@ -67,7 +71,7 @@ for (const marker of mustExclude) {
 console.log('pronunciation static checks passed');
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -81,8 +85,10 @@ Expected: FAIL with `Missing expected pronunciation marker: function speakChines
 
 **Files:**
 - Modify: `index.html`
+- Modify: `sw.js`
+- Delete: `page-agent-init.js`
 
-- [ ] **Step 1: Implement the minimal shared layer**
+- [x] **Step 1: Implement the minimal shared layer**
 
 Replace the existing audio utility block with functions named exactly:
 
@@ -113,16 +119,16 @@ function speakNative(text){ speakNormal(text); }
 
 Update `speak(text)` to accept an options object and use `options.rate`.
 
-- [ ] **Step 2: Remove Page Agent scripts**
+- [x] **Step 2: Remove Page Agent scripts**
 
-Delete these script tags from the bottom of `index.html`:
+Delete these script tags from the bottom of `index.html` and delete the unused `page-agent-init.js` file:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/page-agent@latest/dist/iife/page-agent.demo.js"></script>
 <script src="page-agent-init.js" defer></script>
 ```
 
-- [ ] **Step 3: Run static test**
+- [x] **Step 3: Run static test**
 
 Run:
 
@@ -130,14 +136,14 @@ Run:
 node scripts/test_pronunciation_static.mjs
 ```
 
-Expected: still FAIL because vocabulary and listening UI hooks are not added yet.
+Expected during execution: PASS after vocabulary and listening UI hooks are added in the same implementation pass.
 
 ## Task 3: Vocabulary Audio Controls
 
 **Files:**
 - Modify: `index.html`
 
-- [ ] **Step 1: Add reusable audio button markup**
+- [x] **Step 1: Add reusable audio button markup**
 
 Add a helper near `renderVocabList()`:
 
@@ -151,7 +157,7 @@ function pronunciationButtons(text){
 }
 ```
 
-- [ ] **Step 2: Replace vocabulary card speaker icons**
+- [x] **Step 2: Replace vocabulary card speaker icons**
 
 In vocabulary word cards and communication sentence cards, replace single `v-speak` controls with:
 
@@ -167,7 +173,7 @@ ${pronunciationButtons(s.hz)}
 
 For paired Q/A cards, use `q2.hz` and `a.hz`.
 
-- [ ] **Step 3: Add CSS for compact controls**
+- [x] **Step 3: Add CSS for compact controls**
 
 Add CSS near existing vocabulary styles:
 
@@ -183,7 +189,7 @@ Add CSS near existing vocabulary styles:
 **Files:**
 - Modify: `index.html`
 
-- [ ] **Step 1: Add a pronunciation toolbar to `renderListening()`**
+- [x] **Step 1: Add a pronunciation toolbar to `renderListening()`**
 
 Replace the listening replay area with:
 
@@ -195,7 +201,7 @@ Replace the listening replay area with:
 <p style="color:var(--text3);font-size:13px;margin-top:12px">Nghe chuẩn hoặc nghe chậm</p>
 ```
 
-- [ ] **Step 2: Wire normal and slow replay**
+- [x] **Step 2: Wire normal and slow replay**
 
 Set listeners:
 
@@ -204,7 +210,7 @@ document.getElementById('listen-play').addEventListener('click',()=>speakNormal(
 document.getElementById('listen-play-slow').addEventListener('click',()=>speakSlow(word.hz));
 ```
 
-- [ ] **Step 3: Add toolbar CSS**
+- [x] **Step 3: Add toolbar CSS**
 
 ```css
 .pronunciation-toolbar{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
@@ -216,7 +222,7 @@ document.getElementById('listen-play-slow').addEventListener('click',()=>speakSl
 **Files:**
 - Verify: all changed files
 
-- [ ] **Step 1: Run static test**
+- [x] **Step 1: Run static test**
 
 Run:
 
@@ -226,7 +232,7 @@ node scripts/test_pronunciation_static.mjs
 
 Expected: `pronunciation static checks passed`.
 
-- [ ] **Step 2: Run syntax checks**
+- [x] **Step 2: Run syntax checks**
 
 Run:
 
@@ -237,7 +243,7 @@ python -m py_compile auto_deploy.py fallback_pos_hsk3.py generate_hsk_pos.py jie
 
 Expected: exit code 0.
 
-- [ ] **Step 3: Start local server**
+- [x] **Step 3: Start local server**
 
 Run:
 
@@ -247,7 +253,7 @@ python -m http.server 4173 --bind 127.0.0.1
 
 Expected: app available at `http://127.0.0.1:4173/index.html`.
 
-- [ ] **Step 4: Browser QA**
+- [x] **Step 4: Browser QA**
 
 Flow under test: `index.html -> Tu vung/Luyen Nghe -> normal and slow pronunciation controls render and respond without runtime errors`.
 
@@ -275,4 +281,3 @@ git push origin main
 ```
 
 Expected: `main -> main`.
-

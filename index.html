@@ -209,6 +209,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .vocab-card .v-vn{font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vocab-card .v-speak{width:32px;height:32px;border-radius:50%;background:rgba(88,204,2,.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:.2s}
 .vocab-card:hover .v-speak{background:var(--green)}
+.vocab-audio-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.audio-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--bg3);background:var(--card2);color:var(--text);cursor:pointer;font-size:14px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;transition:.2s}
+.audio-btn:hover{border-color:var(--green);transform:translateY(-1px)}
+.audio-btn.slow{color:var(--yellow)}
 .vocab-num{font-size:11px;color:var(--text3);font-weight:600;min-width:28px;text-align:center}
 
 /* Confetti */
@@ -332,6 +336,8 @@ body.light .theme-toggle::after{left:23px}
 .listen-btn-big{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--green-dark),var(--green));border:none;font-size:40px;cursor:pointer;transition:.3s;box-shadow:0 8px 30px rgba(0,229,255,.4)}
 .listen-btn-big:hover{transform:scale(1.1);box-shadow:0 12px 40px rgba(0,229,255,.6)}
 .listen-btn-big:active{transform:scale(.95)}
+.pronunciation-toolbar{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+.listen-btn-big.slow{background:linear-gradient(135deg,var(--yellow),#ff9f1c);box-shadow:0 8px 30px rgba(255,215,0,.28);font-size:22px;font-weight:900;color:#1d1b12}
 </style>
 </head>
 <body>
@@ -974,8 +980,11 @@ function renderListening(){
  el.innerHTML=`
   <div style="text-align:center;padding:40px 0">
    <p style="color:var(--text3);margin-bottom:32px">Nghe phát âm và chọn từ đúng</p>
-   <button class="listen-btn-big" id="listen-play">🔊</button>
-   <p style="color:var(--text3);font-size:13px;margin-top:12px">Nhấn để nghe lại</p>
+   <div class="pronunciation-toolbar">
+    <button class="listen-btn-big" id="listen-play">🔊</button>
+    <button class="listen-btn-big slow" id="listen-play-slow">0.7x</button>
+   </div>
+   <p style="color:var(--text3);font-size:13px;margin-top:12px">Nghe chuẩn hoặc nghe chậm</p>
   </div>
   <div class="options" style="max-width:500px;margin:0 auto">
    ${options.map(o=>`<div class="option" data-val="${esc(o.hz)}" style="text-align:left">
@@ -988,7 +997,8 @@ function renderListening(){
    <button class="btn btn-primary" id="listen-next">Câu tiếp theo →</button>
   </div>`;
 
- document.getElementById('listen-play').addEventListener('click',()=>speakNative(word.hz));
+ document.getElementById('listen-play').addEventListener('click',()=>speakNormal(word.hz));
+ document.getElementById('listen-play-slow').addEventListener('click',()=>speakSlow(word.hz));
  document.getElementById('listen-next').addEventListener('click',()=>renderListening());
 
  el.querySelectorAll('.option').forEach(opt=>{
@@ -1471,6 +1481,14 @@ function renderVocab(){
  renderVocabList();
 }
 
+function pronunciationButtons(text){
+ const safeText = esc(text);
+ return `<div class="vocab-audio-actions">
+  <button class="audio-btn" data-pronounce-mode="normal" onclick="event.stopPropagation();speakNormal('${safeText}')" title="Nghe chuẩn">🔊</button>
+  <button class="audio-btn slow" data-pronounce-mode="slow" onclick="event.stopPropagation();speakSlow('${safeText}')" title="Nghe chậm">0.7x</button>
+ </div>`;
+}
+
 function renderVocabList(){
  const grid=document.getElementById('vocab-grid');
  const countEl=document.getElementById('vocab-count');
@@ -1511,7 +1529,7 @@ function renderVocabList(){
          <div style="font-size:13px;color:var(--green);margin-top:2px">${q2.py}</div>
          <div style="font-size:14px;color:var(--text2);margin-top:2px">${q2.vn}</div>
         </div>
-        <div class="v-speak" onclick="speakNative('${esc(q2.hz)}')" style="flex-shrink:0;margin-left:12px">🔊</div>
+        ${pronunciationButtons(q2.hz)}
        </div>
       </div>
       <div>
@@ -1522,15 +1540,15 @@ function renderVocabList(){
          <div style="font-size:13px;color:var(--green);margin-top:2px">${a.py}</div>
          <div style="font-size:14px;color:var(--text2);margin-top:2px">${a.vn}</div>
         </div>
-        <div class="v-speak" onclick="speakNative('${esc(a.hz)}')" style="flex-shrink:0;margin-left:12px">🔊</div>
+        ${pronunciationButtons(a.hz)}
        </div>
       </div>
      </div>`;
      i += 2;
     } else {
      // Normal sentence card
-     html += `<div class="vocab-card" style="flex-direction:column;align-items:flex-start;gap:8px" onclick="speakNative('${esc(s.hz)}')">
-      <div style="display:flex;justify-content:space-between;width:100%"><div class="v-hz cn" style="text-align:left;font-size:18px">${s.hz}</div><div class="v-speak">🔊</div></div>
+     html += `<div class="vocab-card" style="flex-direction:column;align-items:flex-start;gap:8px" onclick="speakNormal('${esc(s.hz)}')">
+      <div style="display:flex;justify-content:space-between;width:100%;gap:12px"><div class="v-hz cn" style="text-align:left;font-size:18px">${s.hz}</div>${pronunciationButtons(s.hz)}</div>
       <div class="v-py" style="font-size:14px;color:var(--green)">${s.py}</div>
       <div class="v-vn" style="font-size:14px;color:var(--text2);white-space:normal">${s.vn}</div>
      </div>`;
@@ -1561,25 +1579,39 @@ function renderVocabList(){
   const topic = getWordTopic(w);
   let header = '';
   if(topic !== lastTopic){ lastTopic=topic; header=`<div style="grid-column:1/-1;margin-top:20px;margin-bottom:4px;font-size:16px;font-weight:800;color:var(--green);border-bottom:2px solid var(--bg3);padding-bottom:6px">${topic}</div>`; }
-  return header+`<div class="vocab-card" onclick="speakNative('${esc(w.hz)}')">
+  return header+`<div class="vocab-card" onclick="speakNormal('${esc(w.hz)}')">
    <div class="vocab-num">${i+1}</div>
    <div class="v-hz cn">${w.hz}</div>
    <div class="v-info"><div class="v-py" style="display:flex;align-items:center;gap:6px">${w.py}${w.type?'<span style="font-size:11px;padding:2px 6px;background:rgba(255,255,255,0.15);border-radius:4px;color:var(--text3)">'+w.type+'</span>':''}</div><div class="v-vn">${w.vn}</div></div>
    <span class="bm-star ${isBM?'active':''}" onclick="toggleBookmark('${w.id}',event)">${isBM?'⭐':'☆'}</span>
-   <div class="v-speak">🔊</div>
+   ${pronunciationButtons(w.hz)}
   </div>`;
  }).join('');
 }
 
 // ============ UTILITIES ============
 let currentNativeAudio = null;
-function speakNative(text){
+const PRONUNCIATION_RATES = { normal: 1, slow: 0.72, verySlow: 0.58 };
+
+function stopChineseAudio(){
+ if(currentNativeAudio) { currentNativeAudio.pause(); currentNativeAudio.currentTime=0; currentNativeAudio=null; }
+ if('speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+function speakChinese(text, options={}){
  if(!text || text.trim()==='') return;
- if(currentNativeAudio) { currentNativeAudio.pause(); currentNativeAudio.currentTime=0; }
+ const mode = options.mode || 'normal';
+ const rate = options.rate || PRONUNCIATION_RATES[mode] || PRONUNCIATION_RATES.normal;
+ stopChineseAudio();
  const url = "https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=zh-CN&q=" + encodeURIComponent(text);
  currentNativeAudio = new Audio(url);
- currentNativeAudio.play().catch(e => { console.warn("Audio failed:", e); speak(text); });
+ currentNativeAudio.playbackRate = rate;
+ currentNativeAudio.play().catch(e => { console.warn("Native audio failed, using browser voice:", e); speak(text, { rate }); });
 }
+
+function speakNormal(text){ speakChinese(text, { mode:'normal' }); }
+function speakSlow(text){ speakChinese(text, { mode:'slow' }); }
+function speakNative(text){ speakNormal(text); }
 
 let zhVoice=null;
 function loadChineseVoice(){
@@ -1597,11 +1629,11 @@ function loadChineseVoice(){
 }
 loadChineseVoice();
 
-function speak(text){
+function speak(text, options={}){
  if(!('speechSynthesis' in window)) return;
  speechSynthesis.cancel();
  const u=new SpeechSynthesisUtterance(text);
- u.lang='zh-CN'; u.rate=0.85; u.pitch=1;
+ u.lang='zh-CN'; u.rate=options.rate || 0.85; u.pitch=1;
  if(zhVoice) u.voice=zhVoice;
  speechSynthesis.speak(u);
 }
@@ -1635,8 +1667,5 @@ applyTheme();
 renderHome();
 console.log(`汉语学堂 loaded: ${ALL_WORDS.length} words across ${HSK_LEVELS.length} HSK levels`);
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/page-agent@latest/dist/iife/page-agent.demo.js"></script>
-<script src="page-agent-init.js" defer></script>
 </body>
 </html>
