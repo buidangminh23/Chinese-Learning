@@ -23,6 +23,8 @@ const mustInclude = [
   'data-ai-mode="online"',
   'data-ai-mode="hybrid"',
   'function buildPlacementQuestions()',
+  'function getPlacementSupportText(q)',
+  'function renderPlacementPromptSupport(q)',
   'function answerPlacementQuestion',
   'function finishPlacementTest()',
   'state.aiPractice',
@@ -37,5 +39,15 @@ const mustInclude = [
 for (const marker of mustInclude) {
   assert.ok(html.includes(marker), `Missing expected speech/placement marker: ${marker}`);
 }
+
+assert.ok(
+  !html.includes("${q.type==='listen'?`<button class=\"btn btn-primary\" id=\"placement-listen\" style=\"margin:10px 0 16px\">🔊 Nghe từ</button>`:`<p class=\"practice-muted\">${q.word.vn}</p>`}"),
+  'Placement questions must not show the Vietnamese meaning as a pre-answer hint for every non-listening question'
+);
+
+assert.ok(
+  html.includes("if(q.type==='meaning') return q.word.py;"),
+  'Meaning placement questions should show pinyin support, not the Vietnamese answer'
+);
 
 console.log('speech placement static checks passed');

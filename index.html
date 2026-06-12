@@ -1291,6 +1291,18 @@ function renderPlacement(){
  bindAiModePanel('placement',renderPlacement);
 }
 
+function getPlacementSupportText(q){
+ if(q.type==='meaning') return q.word.py;
+ if(q.type==='pinyin') return q.word.vn;
+ return '';
+}
+
+function renderPlacementPromptSupport(q){
+ if(q.type==='listen') return `<button class="btn btn-primary" id="placement-listen" style="margin:10px 0 16px">🔊 Nghe từ</button>`;
+ const supportText=getPlacementSupportText(q);
+ return supportText?`<p class="practice-muted">${esc(supportText)}</p>`:'';
+}
+
 function renderPlacementQuestion(){
  const el=document.getElementById('screen-placement');
  const q=placementQuestions[placementIndex];
@@ -1304,7 +1316,7 @@ function renderPlacementQuestion(){
   </div>
   <div class="placement-progress"><div class="fill" style="width:${progress}%"></div></div>
   <h3>${prompt}</h3>
-  ${q.type==='listen'?`<button class="btn btn-primary" id="placement-listen" style="margin:10px 0 16px">🔊 Nghe từ</button>`:`<p class="practice-muted">${q.word.vn}</p>`}
+  ${renderPlacementPromptSupport(q)}
   <div id="placement-options">${q.options.map(o=>`<button class="placement-option" data-answer="${esc(o)}">${o}</button>`).join('')}</div>
   <div id="placement-feedback" style="min-height:44px;margin-top:12px"></div>
  </div>`;
