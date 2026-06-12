@@ -378,16 +378,16 @@ body.light .theme-toggle::after{left:23px}
 <div class="lesson-screen" id="lesson-screen"></div>
 
 <!-- Word data -->
-<script src="words_hsk1.js?v=3"></script>
-<script src="words_hsk2.js?v=3"></script>
-<script src="words_hsk3.js?v=3"></script>
-<script src="words_hsk4.js?v=3"></script>
-<script src="words_hsk5a.js?v=3"></script>
-<script src="words_hsk5b.js?v=3"></script>
-<script src="words_hsk6a.js?v=3"></script>
-<script src="words_hsk6b.js?v=3"></script>
-<script src="grammar_data.js?v=3"></script>
-<script src="comm_sentences.js?v=3"></script>
+<script src="words_hsk1.js?v=5"></script>
+<script src="words_hsk2.js?v=5"></script>
+<script src="words_hsk3.js?v=5"></script>
+<script src="words_hsk4.js?v=5"></script>
+<script src="words_hsk5a.js?v=5"></script>
+<script src="words_hsk5b.js?v=5"></script>
+<script src="words_hsk6a.js?v=5"></script>
+<script src="words_hsk6b.js?v=5"></script>
+<script src="grammar_data.js?v=5"></script>
+<script src="comm_sentences.js?v=5"></script>
 
 <script>
 // ============ DATA ============
@@ -988,7 +988,6 @@ function renderListening(){
    <button class="btn btn-primary" id="listen-next">Câu tiếp theo →</button>
   </div>`;
 
- speakNative(word.hz);
  document.getElementById('listen-play').addEventListener('click',()=>speakNative(word.hz));
  document.getElementById('listen-next').addEventListener('click',()=>renderListening());
 
@@ -1636,5 +1635,8 @@ applyTheme();
 renderHome();
 console.log(`汉语学堂 loaded: ${ALL_WORDS.length} words across ${HSK_LEVELS.length} HSK levels`);
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/page-agent@latest/dist/iife/page-agent.demo.js"></script>
+<script src="page-agent-init.js" defer></script>
 </body>
 </html>

@@ -91,7 +91,7 @@ const COMM_SENTENCES = [
    ["你学中文为什么？", "Nǐ xué Zhōngwén wèishénme?", "Tại sao bạn học tiếng Trung?", "Q"],
    ["因为我对中国文化很感兴趣。", "Yīnwèi wǒ duì Zhōngguó wénhuà hěn gǎn xìngqù.", "Vì tôi rất hứng thú với văn hóa Trung Quốc.", "A"],
    ["这个词是什么意思？", "Zhège cí shì shénme yìsi?", "Từ này có nghĩa là gì?", "Q"],
-   ["这个词的意思是"努力"。", "Zhège cí de yìsi shì 'nǔlì'.", "Từ này có nghĩa là 'cố gắng, chăm chỉ'.", "A"],
+   ["这个词的意思是“努力”。", "Zhège cí de yìsi shì 'nǔlì'.", "Từ này có nghĩa là 'cố gắng, chăm chỉ'.", "A"],
    ["你一天学几个小时？", "Nǐ yītiān xué jǐ gè xiǎoshí?", "Mỗi ngày bạn học mấy tiếng?", "Q"],
    ["我每天学一到两个小时。", "Wǒ měitiān xué yī dào liǎng gè xiǎoshí.", "Tôi học mỗi ngày từ một đến hai tiếng.", "A"],
    ["这个发音对吗？", "Zhège fāyīn duì ma?", "Phát âm này có đúng không?", "Q"],
