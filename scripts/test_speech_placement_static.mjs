@@ -26,7 +26,12 @@ const mustInclude = [
   'function answerPlacementQuestion',
   'function finishPlacementTest()',
   'state.aiPractice',
-  'state.placement'
+  'state.placement',
+  'function createDefaultState()',
+  'function isPlainObject(value)',
+  'function normalizeState(parsed)',
+  'renderFatalStartupError(err)',
+  'localStorage.removeItem'
 ];
 
 for (const marker of mustInclude) {

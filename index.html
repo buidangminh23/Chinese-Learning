@@ -466,19 +466,30 @@ function getLessons(hskId){
 }
 
 // ============ STATE ============
-const DEFAULT_STATE = {completedLessons:{},learnedWords:[],wrongWords:[],bookmarks:[],srs:{},studyLog:[],theme:'dark',aiPractice:{mode:'hybrid',geminiKey:''},placement:null};
+function createDefaultState(){
+ return {completedLessons:{},learnedWords:[],wrongWords:[],bookmarks:[],srs:{},studyLog:[],theme:'dark',aiPractice:{mode:'hybrid',geminiKey:''},placement:null};
+}
+const DEFAULT_STATE = createDefaultState();
 let state;
+function isPlainObject(value){
+ return !!value && typeof value==='object' && !Array.isArray(value);
+}
+function normalizeState(parsed){
+ const base=createDefaultState();
+ if(!isPlainObject(parsed)) return base;
+ return {...base,...parsed};
+}
 function loadState(){
- try{state=JSON.parse(localStorage.getItem('hanzhi_state'))||{...DEFAULT_STATE}}
- catch(e){state={...DEFAULT_STATE}}
- if(!state.completedLessons) state.completedLessons={};
- if(!state.learnedWords) state.learnedWords=[];
- if(!state.wrongWords) state.wrongWords=[];
- if(!state.bookmarks) state.bookmarks=[];
- if(!state.srs) state.srs={};
- if(!state.studyLog) state.studyLog=[];
+ try{state=normalizeState(JSON.parse(localStorage.getItem('hanzhi_state')))}
+ catch(e){localStorage.removeItem('hanzhi_state');state=createDefaultState()}
+ if(!isPlainObject(state.completedLessons)) state.completedLessons={};
+ if(!Array.isArray(state.learnedWords)) state.learnedWords=[];
+ if(!Array.isArray(state.wrongWords)) state.wrongWords=[];
+ if(!Array.isArray(state.bookmarks)) state.bookmarks=[];
+ if(!isPlainObject(state.srs)) state.srs={};
+ if(!Array.isArray(state.studyLog)) state.studyLog=[];
  if(!state.theme) state.theme='dark';
- if(!state.aiPractice) state.aiPractice={mode:'hybrid',geminiKey:''};
+ if(!isPlainObject(state.aiPractice)) state.aiPractice={mode:'hybrid',geminiKey:''};
  if(!['offline','online','hybrid'].includes(state.aiPractice.mode)) state.aiPractice.mode='hybrid';
  if(typeof state.aiPractice.geminiKey!=='string') state.aiPractice.geminiKey='';
  if(!('placement' in state)) state.placement=null;
@@ -2000,10 +2011,25 @@ if('serviceWorker' in navigator){
 }
 
 // ============ INIT ============
-loadState();
-applyTheme();
-renderHome();
-console.log(`汉语学堂 loaded: ${ALL_WORDS.length} words across ${HSK_LEVELS.length} HSK levels`);
+function renderFatalStartupError(err){
+ console.error('Startup failed:', err);
+ const el=document.getElementById('screen-home');
+ if(!el) return;
+ el.innerHTML=`<div class="practice-card" style="max-width:680px;margin:32px auto">
+  <h3>Không tải được dữ liệu học tập</h3>
+  <p class="practice-muted">Dữ liệu lưu trong trình duyệt có thể bị lỗi hoặc quá cũ. Bấm reset để app tạo lại dữ liệu sạch.</p>
+  <button class="btn btn-primary" onclick="localStorage.removeItem('hanzhi_state');location.reload()">Reset dữ liệu local</button>
+ </div>`;
+}
+
+try{
+ loadState();
+ applyTheme();
+ renderHome();
+ console.log(`汉语学堂 loaded: ${ALL_WORDS.length} words across ${HSK_LEVELS.length} HSK levels`);
+}catch(err){
+ renderFatalStartupError(err);
+}
 </script>
 </body>
 </html>
