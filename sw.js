@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hanzhi-v9';
+const CACHE_NAME = 'hanzhi-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -30,6 +30,19 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        if (resp.status === 200) {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', clone));
+        }
+        return resp;
+      }).catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
+    );
+    return;
+  }
+
   // Network first for TTS, cache first for assets
   if (e.request.url.includes('translate.googleapis.com')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
