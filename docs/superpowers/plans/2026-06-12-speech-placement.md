@@ -25,14 +25,13 @@
 
 ## Tasks
 
-- [ ] Write failing static test in `scripts/test_speech_placement_static.mjs`.
-- [ ] Run `node scripts/test_speech_placement_static.mjs` and confirm it fails on missing `screen-speaking`.
-- [ ] Add nav items, screens, titles, and render routing.
-- [ ] Add shared AI mode settings panel and Gemini helper.
-- [ ] Add speech recognition practice screen and offline/hybrid scoring.
-- [ ] Add placement test screen and local scoring.
-- [ ] Bump service worker cache.
-- [ ] Run static tests, JS checks, Python checks, and inline script parse.
-- [ ] Run Browser QA for `Luyen Noi`, `Kiem tra`, and existing `Luyen Nghe`.
+- [x] Write failing static test in `scripts/test_speech_placement_static.mjs`.
+- [x] Run `node scripts/test_speech_placement_static.mjs` and confirm it fails on missing `screen-speaking`.
+- [x] Add nav items, screens, titles, and render routing.
+- [x] Add shared AI mode settings panel and Gemini helper.
+- [x] Add speech recognition practice screen and offline/hybrid scoring.
+- [x] Add placement test screen and local scoring.
+- [x] Bump service worker cache.
+- [x] Run static tests, JS checks, Python checks, and inline script parse.
+- [x] Run Browser QA for `Luyen Noi`, `Kiem tra`, and existing `Luyen Nghe`.
 - [ ] Commit and push.
-

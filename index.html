@@ -338,6 +338,27 @@ body.light .theme-toggle::after{left:23px}
 .listen-btn-big:active{transform:scale(.95)}
 .pronunciation-toolbar{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
 .listen-btn-big.slow{background:linear-gradient(135deg,var(--yellow),#ff9f1c);box-shadow:0 8px 30px rgba(255,215,0,.28);font-size:22px;font-weight:900;color:#1d1b12}
+
+/* ===== AI PRACTICE ===== */
+.practice-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+.practice-card{background:var(--card);border:1px solid var(--bg3);border-radius:var(--radius);padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.practice-card h3{font-size:16px;font-weight:800;margin-bottom:10px}
+.practice-muted{color:var(--text3);font-size:13px;line-height:1.6}
+.practice-target{font-size:34px;font-weight:800;line-height:1.35;margin:18px 0;color:var(--text)}
+.practice-transcript{min-height:72px;border:1px dashed var(--bg3);border-radius:var(--radius-sm);padding:14px;background:rgba(255,255,255,.03);line-height:1.7}
+.mode-switch{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}
+.mode-switch button{border:1px solid var(--bg3);background:var(--card2);color:var(--text2);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:800;cursor:pointer}
+.mode-switch button.active{border-color:var(--green);color:#fff;background:linear-gradient(135deg,var(--green-dark),var(--green))}
+.ai-key-row{display:flex;gap:8px;margin-top:10px}
+.ai-key-row input{flex:1;min-width:0;padding:10px 12px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg2);color:var(--text)}
+.score-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;border:1px solid var(--bg3);background:var(--card2)}
+.placement-option{width:100%;text-align:left;padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--bg3);background:var(--card);color:var(--text);cursor:pointer;font-size:15px;transition:.2s;margin-bottom:8px}
+.placement-option:hover{border-color:var(--green);background:var(--card2)}
+.placement-option.correct{border-color:var(--green);background:rgba(88,204,2,.16)}
+.placement-option.wrong{border-color:var(--red);background:rgba(255,75,75,.16)}
+.placement-progress{height:8px;border-radius:999px;background:var(--bg3);overflow:hidden;margin:12px 0 18px}
+.placement-progress .fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue))}
+@media(max-width:900px){.practice-layout{grid-template-columns:1fr}.practice-target{font-size:28px}}
 </style>
 </head>
 <body>
@@ -350,6 +371,8 @@ body.light .theme-toggle::after{left:23px}
  <div class="nav-item" data-screen="grammar"><span class="nav-icon">📚</span>Ngữ pháp & Lưu ý</div>
  <div class="nav-item" data-screen="pinyin"><span class="nav-icon">🔤</span>Pinyin</div>
  <div class="nav-item" data-screen="listening"><span class="nav-icon">🎧</span>Luyện Nghe</div>
+ <div class="nav-item" data-screen="speaking"><span class="nav-icon">🎙️</span>Luyện Nói</div>
+ <div class="nav-item" data-screen="placement"><span class="nav-icon">🧪</span>Kiểm tra</div>
  <div class="nav-item" data-screen="writing"><span class="nav-icon">✍️</span>Luyện Viết</div>
  <div class="nav-item" data-screen="radicals"><span class="nav-icon">🔢</span>Bộ Thủ</div>
  <div class="nav-item" data-screen="review"><span class="nav-icon">🔄</span>Ôn tập</div>
@@ -373,6 +396,8 @@ body.light .theme-toggle::after{left:23px}
  <div class="screen" id="screen-grammar"></div>
  <div class="screen" id="screen-pinyin"></div>
  <div class="screen" id="screen-listening"></div>
+ <div class="screen" id="screen-speaking"></div>
+ <div class="screen" id="screen-placement"></div>
  <div class="screen" id="screen-writing"></div>
  <div class="screen" id="screen-radicals"></div>
  <div class="screen" id="screen-review"></div>
@@ -441,7 +466,7 @@ function getLessons(hskId){
 }
 
 // ============ STATE ============
-const DEFAULT_STATE = {completedLessons:{},learnedWords:[],wrongWords:[],bookmarks:[],srs:{},studyLog:[],theme:'dark'};
+const DEFAULT_STATE = {completedLessons:{},learnedWords:[],wrongWords:[],bookmarks:[],srs:{},studyLog:[],theme:'dark',aiPractice:{mode:'hybrid',geminiKey:''},placement:null};
 let state;
 function loadState(){
  try{state=JSON.parse(localStorage.getItem('hanzhi_state'))||{...DEFAULT_STATE}}
@@ -453,6 +478,10 @@ function loadState(){
  if(!state.srs) state.srs={};
  if(!state.studyLog) state.studyLog=[];
  if(!state.theme) state.theme='dark';
+ if(!state.aiPractice) state.aiPractice={mode:'hybrid',geminiKey:''};
+ if(!['offline','online','hybrid'].includes(state.aiPractice.mode)) state.aiPractice.mode='hybrid';
+ if(typeof state.aiPractice.geminiKey!=='string') state.aiPractice.geminiKey='';
+ if(!('placement' in state)) state.placement=null;
 }
 function saveState(){localStorage.setItem('hanzhi_state',JSON.stringify(state))}
 
@@ -467,7 +496,7 @@ document.getElementById('theme-toggle').addEventListener('click',()=>{
 });
 
 // ============ NAVIGATION ============
-const SCREEN_TITLES={home:'🏠 Học tập',vocab:'📖 Từ vựng 5000 từ',grammar:'📚 Ngữ pháp & Lưu ý',pinyin:'🔤 Bảng Pinyin',listening:'🎧 Luyện Nghe',writing:'✍️ Luyện Viết Hán Tự',radicals:'🔢 Bộ Thủ',review:'🔄 Ôn tập',game:'🎮 Mini Game',stats:'📊 Thống kê'};
+const SCREEN_TITLES={home:'🏠 Học tập',vocab:'📖 Từ vựng 5000 từ',grammar:'📚 Ngữ pháp & Lưu ý',pinyin:'🔤 Bảng Pinyin',listening:'🎧 Luyện Nghe',speaking:'🎙️ Luyện Nói',placement:'🧪 Kiểm tra trình độ',writing:'✍️ Luyện Viết Hán Tự',radicals:'🔢 Bộ Thủ',review:'🔄 Ôn tập',game:'🎮 Mini Game',stats:'📊 Thống kê'};
 let currentScreen='home';
 document.querySelectorAll('.nav-item').forEach(item=>{
  item.addEventListener('click',()=>{
@@ -483,6 +512,8 @@ document.querySelectorAll('.nav-item').forEach(item=>{
   else if(s==='grammar') renderGrammar();
   else if(s==='pinyin') renderPinyin();
   else if(s==='listening') renderListening();
+  else if(s==='speaking') renderSpeaking();
+  else if(s==='placement') renderPlacement();
   else if(s==='writing') renderWriting();
   else if(s==='radicals') renderRadicals();
   else if(s==='review') renderReview();
@@ -565,7 +596,7 @@ function navigateTo(screen){
  document.getElementById('screen-'+screen).classList.add('active');
  document.getElementById('screen-title').textContent=SCREEN_TITLES[screen]||'';
  currentScreen=screen;
- const fns={home:renderHome,vocab:renderVocab,grammar:renderGrammar,pinyin:renderPinyin,listening:renderListening,writing:renderWriting,radicals:renderRadicals,review:renderReview,game:renderGame,stats:renderStats};
+ const fns={home:renderHome,vocab:renderVocab,grammar:renderGrammar,pinyin:renderPinyin,listening:renderListening,speaking:renderSpeaking,placement:renderPlacement,writing:renderWriting,radicals:renderRadicals,review:renderReview,game:renderGame,stats:renderStats};
  if(fns[screen]) fns[screen]();
 }
 
@@ -1020,6 +1051,301 @@ function renderListening(){
    saveState();
   });
  });
+}
+
+// ============ AI MODE + SPEAKING PRACTICE ============
+let speakingTarget=null;
+let speakingTranscript='';
+let speakingFeedback=null;
+
+function renderAiModePanel(scope){
+ const mode=state.aiPractice.mode||'hybrid';
+ const hasKey=!!state.aiPractice.geminiKey;
+ return `<div class="practice-card">
+  <h3>AI tùy chọn</h3>
+  <p class="practice-muted">Hybrid dùng AI khi có key, lỗi thì tự quay về offline.</p>
+  <div class="mode-switch" data-scope="${scope}">
+   <button data-ai-mode="offline" class="${mode==='offline'?'active':''}">Offline</button>
+   <button data-ai-mode="online" class="${mode==='online'?'active':''}">Online</button>
+   <button data-ai-mode="hybrid" class="${mode==='hybrid'?'active':''}">Hybrid</button>
+  </div>
+  <div class="ai-key-row">
+   <input id="ai-key-${scope}" type="password" placeholder="${hasKey?'Đã lưu Gemini key':'Gemini API key'}">
+   <button class="btn btn-secondary btn-sm" id="ai-save-${scope}">Lưu</button>
+   <button class="btn btn-secondary btn-sm" id="ai-clear-${scope}">Xóa</button>
+  </div>
+  <p class="practice-muted" style="margin-top:10px">Key chỉ lưu trong trình duyệt này.</p>
+ </div>`;
+}
+
+function bindAiModePanel(scope, rerender){
+ const root=document.querySelector(`.mode-switch[data-scope="${scope}"]`);
+ if(root){
+  root.querySelectorAll('[data-ai-mode]').forEach(btn=>{
+   btn.addEventListener('click',()=>{
+    state.aiPractice.mode=btn.dataset.aiMode;
+    saveState();
+    rerender();
+   });
+  });
+ }
+ const saveBtn=document.getElementById(`ai-save-${scope}`);
+ const clearBtn=document.getElementById(`ai-clear-${scope}`);
+ const keyInput=document.getElementById(`ai-key-${scope}`);
+ if(saveBtn&&keyInput){
+  saveBtn.addEventListener('click',()=>{
+   const key=keyInput.value.trim();
+   if(key){state.aiPractice.geminiKey=key;saveState();rerender();}
+  });
+ }
+ if(clearBtn){
+  clearBtn.addEventListener('click',()=>{
+   state.aiPractice.geminiKey='';
+   saveState();
+   rerender();
+  });
+ }
+}
+
+async function callGeminiScoring(prompt){
+ const key=state.aiPractice.geminiKey;
+ if(!key) throw new Error('Missing Gemini API key');
+ const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',{
+  method:'POST',
+  headers:{'Content-Type':'application/json','x-goog-api-key':key},
+  body:JSON.stringify({
+   contents:[{role:'user',parts:[{text:prompt}]}],
+   generationConfig:{temperature:0.2,maxOutputTokens:220}
+  })
+ });
+ if(!res.ok) throw new Error('Gemini request failed: '+res.status);
+ const data=await res.json();
+ return data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('').trim()||'';
+}
+
+function getSpeechRecognition(){
+ return window.SpeechRecognition||window.webkitSpeechRecognition||null;
+}
+
+function normalizeSpeechText(text){
+ return (text||'').toLowerCase().replace(/[，。！？,.!?;；、\s]/g,'').trim();
+}
+
+function scoreSpeechOffline(target, transcript){
+ const t=normalizeSpeechText(target);
+ const u=normalizeSpeechText(transcript);
+ if(!u) return {score:0,label:'Chưa có giọng nói',feedback:'Bấm mic và đọc câu mục tiêu.'};
+ if(t===u) return {score:100,label:'Rất chuẩn',feedback:'Bạn đọc khớp hoàn toàn với câu mục tiêu.'};
+ const targetChars=[...t];
+ const used=new Set();
+ let matches=0;
+ [...u].forEach(ch=>{
+  const idx=targetChars.findIndex((c,i)=>c===ch&&!used.has(i));
+  if(idx>=0){used.add(idx);matches++;}
+ });
+ const lengthPenalty=Math.max(0,Math.abs(t.length-u.length)*4);
+ const score=Math.max(0,Math.min(100,Math.round(matches/Math.max(1,t.length)*100-lengthPenalty)));
+ const label=score>=82?'Gần chuẩn':score>=55?'Cần luyện thêm':'Chưa khớp';
+ const feedback=score>=82?'Phát âm đã gần đúng, thử nghe chậm rồi đọc lại.':score>=55?'Bạn nói đúng một phần, chú ý đủ âm và thứ tự chữ.':'Transcript khác khá nhiều so với mục tiêu.';
+ return {score,label,feedback};
+}
+
+function getSpeakingPool(){
+ const words=ALL_WORDS.filter(w=>w.hsk<=3).slice(0,240).map(w=>({hz:w.hz,py:w.py,vn:w.vn,kind:'Từ vựng'}));
+ const sentences=[];
+ if(typeof COMM_SENTENCES!=='undefined'){
+  COMM_SENTENCES.forEach(cat=>cat.sentences.forEach(s=>{if(sentences.length<60)sentences.push({hz:s[0],py:s[1],vn:s[2],kind:'Mẫu câu'});}));
+ }
+ return [...words,...sentences];
+}
+
+function pickSpeakingTarget(){
+ const pool=getSpeakingPool();
+ speakingTarget=pool[Math.floor(Math.random()*pool.length)]||ALL_WORDS[0];
+ speakingTranscript='';
+ speakingFeedback=null;
+}
+
+async function scoreSpeakingTranscript(){
+ if(!speakingTarget||!speakingTranscript) return;
+ const offline=scoreSpeechOffline(speakingTarget.hz,speakingTranscript);
+ const mode=state.aiPractice.mode;
+ if((mode==='online'||mode==='hybrid')&&state.aiPractice.geminiKey){
+  try{
+   const prompt=`Bạn là giáo viên tiếng Trung. Chấm phát âm dựa trên transcript nhận diện giọng nói. Trả lời tiếng Việt trong 2 câu, có điểm 0-100.\nMục tiêu: ${speakingTarget.hz} (${speakingTarget.py}) nghĩa là ${speakingTarget.vn}\nTranscript: ${speakingTranscript}\nĐiểm offline tham khảo: ${offline.score}/100.`;
+   const ai=await callGeminiScoring(prompt);
+   speakingFeedback={...offline,label:'AI + '+offline.label,feedback:ai||offline.feedback,source:'online'};
+  }catch(e){
+   speakingFeedback={...offline,feedback:(mode==='online'?'AI lỗi, dùng điểm offline tạm thời. ':'Hybrid fallback offline. ')+offline.feedback,source:'offline'};
+  }
+ }else{
+  speakingFeedback={...offline,source:'offline'};
+ }
+ renderSpeaking();
+}
+
+function startSpeechRecognition(){
+ const Recognition=getSpeechRecognition();
+ const status=document.getElementById('speech-status');
+ if(!Recognition){
+  if(status) status.textContent='Trình duyệt chưa hỗ trợ nhận diện giọng nói.';
+  return;
+ }
+ const rec=new Recognition();
+ rec.lang='zh-CN';
+ rec.interimResults=false;
+ rec.maxAlternatives=1;
+ if(status) status.textContent='Đang nghe... hãy đọc câu mục tiêu.';
+ rec.onresult=e=>{
+  speakingTranscript=e.results?.[0]?.[0]?.transcript||'';
+  if(status) status.textContent='Đã nhận diện, đang chấm...';
+  scoreSpeakingTranscript();
+ };
+ rec.onerror=e=>{if(status) status.textContent='Không nghe được: '+(e.error||'lỗi microphone');};
+ rec.onend=()=>{if(status&&status.textContent.startsWith('Đang nghe')) status.textContent='Đã dừng nghe.';};
+ rec.start();
+}
+
+function renderSpeaking(){
+ const el=document.getElementById('screen-speaking');
+ if(!speakingTarget) pickSpeakingTarget();
+ const support=!!getSpeechRecognition();
+ const feedback=speakingFeedback;
+ el.innerHTML=`<div class="practice-layout">
+  <div class="practice-card">
+   <h3>🎙️ Luyện nói tiếng Trung</h3>
+   <p class="practice-muted">Nghe mẫu, bấm mic, đọc lại. App sẽ chấm bằng ${state.aiPractice.mode==='offline'?'offline':state.aiPractice.mode==='online'?'online AI':'hybrid'}.</p>
+   <div class="score-pill">${speakingTarget.kind}</div>
+   <div class="practice-target cn">${speakingTarget.hz}</div>
+   <div style="color:var(--green);font-weight:700">${speakingTarget.py}</div>
+   <div class="practice-muted" style="margin-top:4px">${speakingTarget.vn}</div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:18px 0">
+    <button class="btn btn-primary" id="speak-target">🔊 Nghe mẫu</button>
+    <button class="btn btn-secondary" id="speech-new">Câu khác</button>
+    <button class="btn btn-primary" id="speech-start" ${support?'':'disabled'}>🎙️ Bấm để nói</button>
+   </div>
+   <p id="speech-status" class="practice-muted">${support?'Sẵn sàng nhận diện giọng nói zh-CN.':'Trình duyệt này chưa hỗ trợ SpeechRecognition.'}</p>
+   <h3 style="margin-top:18px">Transcript</h3>
+   <div class="practice-transcript">${speakingTranscript||'Chưa có transcript.'}</div>
+   ${feedback?`<div style="margin-top:16px"><span class="score-pill">${feedback.score}/100 · ${feedback.label}</span><p class="practice-muted" style="margin-top:10px">${feedback.feedback}</p></div>`:''}
+  </div>
+  ${renderAiModePanel('speaking')}
+ </div>`;
+ document.getElementById('speak-target').addEventListener('click',()=>speakNormal(speakingTarget.hz));
+ document.getElementById('speech-new').addEventListener('click',()=>{pickSpeakingTarget();renderSpeaking();});
+ document.getElementById('speech-start').addEventListener('click',()=>startSpeechRecognition());
+ bindAiModePanel('speaking',renderSpeaking);
+}
+
+// ============ PLACEMENT TEST ============
+let placementQuestions=[];
+let placementIndex=0;
+let placementAnswers=[];
+
+function buildPlacementQuestions(){
+ const questions=[];
+ for(let i=0;i<20;i++){
+  const hsk=i<18?(i%6)+1:6;
+  const pool=ALL_WORDS.filter(w=>w.hsk===hsk);
+  const word=pool[Math.floor(Math.random()*pool.length)]||ALL_WORDS[Math.floor(Math.random()*ALL_WORDS.length)];
+  const type=['meaning','pinyin','listen'][i%3];
+  const field=type==='meaning'?'vn':type==='pinyin'?'py':'hz';
+  const distractors=shuffle(ALL_WORDS.filter(w=>w.id!==word.id&&w.hsk===word.hsk)).slice(0,3).map(w=>w[field]);
+  const options=shuffle([word[field],...distractors]);
+  questions.push({type,hsk,word,field,answer:word[field],options});
+ }
+ return questions;
+}
+
+function startPlacementTest(){
+ placementQuestions=buildPlacementQuestions();
+ placementIndex=0;
+ placementAnswers=[];
+ renderPlacementQuestion();
+}
+
+function renderPlacement(){
+ const el=document.getElementById('screen-placement');
+ const latest=state.placement;
+ el.innerHTML=`<div class="practice-layout">
+  <div class="practice-card">
+   <h3>🧪 Kiểm tra trình độ HSK</h3>
+   <p class="practice-muted">20 câu trộn từ HSK 1-6: chọn nghĩa, chọn pinyin, nghe chọn chữ. Kết quả lưu trong máy này.</p>
+   ${latest?`<div style="margin:16px 0"><span class="score-pill">Gần nhất: ${latest.score}/20 · Gợi ý HSK ${latest.suggestedHsk}</span><p class="practice-muted" style="margin-top:8px">${latest.date}</p></div>`:''}
+   <button class="btn btn-primary" id="placement-start">Bắt đầu kiểm tra</button>
+  </div>
+  ${renderAiModePanel('placement')}
+ </div>`;
+ document.getElementById('placement-start').addEventListener('click',()=>startPlacementTest());
+ bindAiModePanel('placement',renderPlacement);
+}
+
+function renderPlacementQuestion(){
+ const el=document.getElementById('screen-placement');
+ const q=placementQuestions[placementIndex];
+ if(!q){finishPlacementTest();return;}
+ const progress=Math.round(placementIndex/placementQuestions.length*100);
+ const prompt=q.type==='meaning'?`Chọn nghĩa của <span class="cn">${q.word.hz}</span>`:q.type==='pinyin'?`Chọn pinyin của <span class="cn">${q.word.hz}</span>`:'Nghe và chọn Hán tự đúng';
+ el.innerHTML=`<div class="practice-card" style="max-width:760px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+   <span class="score-pill">Câu ${placementIndex+1}/${placementQuestions.length}</span>
+   <span class="score-pill">HSK ${q.hsk}</span>
+  </div>
+  <div class="placement-progress"><div class="fill" style="width:${progress}%"></div></div>
+  <h3>${prompt}</h3>
+  ${q.type==='listen'?`<button class="btn btn-primary" id="placement-listen" style="margin:10px 0 16px">🔊 Nghe từ</button>`:`<p class="practice-muted">${q.word.vn}</p>`}
+  <div id="placement-options">${q.options.map(o=>`<button class="placement-option" data-answer="${esc(o)}">${o}</button>`).join('')}</div>
+  <div id="placement-feedback" style="min-height:44px;margin-top:12px"></div>
+ </div>`;
+ if(q.type==='listen') document.getElementById('placement-listen').addEventListener('click',()=>speakNormal(q.word.hz));
+ el.querySelectorAll('.placement-option').forEach(btn=>btn.addEventListener('click',()=>answerPlacementQuestion(btn.dataset.answer)));
+}
+
+function answerPlacementQuestion(answer){
+ const q=placementQuestions[placementIndex];
+ const correct=answer===q.answer;
+ placementAnswers.push({hsk:q.hsk,type:q.type,correct,answer,expected:q.answer});
+ document.querySelectorAll('.placement-option').forEach(btn=>{
+  btn.disabled=true;
+  if(btn.dataset.answer===q.answer) btn.classList.add('correct');
+  else if(btn.dataset.answer===answer) btn.classList.add('wrong');
+ });
+ const fb=document.getElementById('placement-feedback');
+ fb.innerHTML=`<p class="practice-muted">${correct?'✅ Đúng':'❌ Sai'} · Đáp án: <b>${q.answer}</b></p><button class="btn btn-primary btn-sm" id="placement-next">${placementIndex+1>=placementQuestions.length?'Xem kết quả':'Câu tiếp theo'}</button>`;
+ document.getElementById('placement-next').addEventListener('click',()=>{
+  placementIndex++;
+  if(placementIndex>=placementQuestions.length) finishPlacementTest();
+  else renderPlacementQuestion();
+ });
+}
+
+function finishPlacementTest(){
+ const total=placementAnswers.length;
+ const score=placementAnswers.filter(a=>a.correct).length;
+ const byHsk={};
+ placementAnswers.forEach(a=>{
+  if(!byHsk[a.hsk]) byHsk[a.hsk]={right:0,total:0};
+  byHsk[a.hsk].total++;
+  if(a.correct) byHsk[a.hsk].right++;
+ });
+ let suggestedHsk=1;
+ for(let h=1;h<=6;h++){
+  const b=byHsk[h];
+  if(b&&b.total&&b.right/b.total>=0.6) suggestedHsk=h;
+ }
+ state.placement={score,total,suggestedHsk,byHsk,date:new Date().toLocaleString('vi-VN')};
+ saveState();
+ const rows=Object.keys(byHsk).map(h=>`<div class="hsk-bar"><div class="label">HSK${h}</div><div class="bar"><div class="fill" style="width:${Math.round(byHsk[h].right/byHsk[h].total*100)}%"></div></div><div class="pct">${byHsk[h].right}/${byHsk[h].total}</div></div>`).join('');
+ document.getElementById('screen-placement').innerHTML=`<div class="practice-card" style="max-width:760px;margin:0 auto">
+  <h3>🎯 Kết quả kiểm tra</h3>
+  <div class="practice-target">${score}/${total}</div>
+  <p class="practice-muted">Gợi ý học tiếp ở <b>HSK ${suggestedHsk}</b>. Nếu điểm thấp ở một cấp, nên ôn cấp đó trước khi lên cấp cao hơn.</p>
+  <div class="hsk-progress" style="margin-top:16px">${rows}</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+   <button class="btn btn-primary" onclick="startPlacementTest()">Làm lại</button>
+   <button class="btn btn-secondary" onclick="renderPlacement()">Về màn kiểm tra</button>
+  </div>
+ </div>`;
 }
 
 // ============ WRITING PRACTICE ============
