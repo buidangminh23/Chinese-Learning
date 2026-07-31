@@ -1,0 +1,8 @@
+# Python tooling for this repo (build-time scripts only — the PWA itself ships no Python).
+# Versions are what is verified working on MINHSPARKPC, 2026-07-31.
+
+google-genai==2.9.0      # generate_hsk_pos.py  -> from google import genai
+python-dotenv==1.2.2     # auto_deploy.py       -> from dotenv import load_dotenv
+jieba                    # jieba_hsk_pos.py     -> import jieba.posseg
+                         # unpinned on purpose: not installed on this machine,
+                         # so no working version could be verified
