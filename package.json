@@ -1,0 +1,24 @@
+{
+  "name": "chinese-learning",
+  "version": "1.0.0",
+  "description": "Chinese Learning Web Application - 汉语学堂",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buidangminh23/Chinese-Learning.git"
+  },
+  "keywords": ["chinese", "learning", "hsk", "language", "education"],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/buidangminh23/Chinese-Learning/issues"
+  },
+  "homepage": "https://github.com/buidangminh23/Chinese-Learning#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
