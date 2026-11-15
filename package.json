@@ -1,0 +1,44 @@
+{
+  "name": "@minhspark/chinese-learning",
+  "version": "0.1.0",
+  "description": "Learn Chinese offline: HSK 1-6 vocabulary, grammar, pronunciation coach and drills, served on your own computer",
+  "type": "module",
+  "bin": {
+    "chinese-learning": "bin/serve.mjs"
+  },
+  "files": [
+    "bin/serve.mjs",
+    "index.html",
+    "manifest.json",
+    "sw.js",
+    "comm_sentences.js",
+    "grammar_data.js",
+    "words_hsk*.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node scripts/test_service_worker_static.mjs && node scripts/test_pronunciation_static.mjs && node scripts/test_speech_placement_static.mjs && node scripts/test_serve.mjs"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "chinese",
+    "hsk",
+    "mandarin",
+    "flashcards",
+    "pwa",
+    "offline"
+  ],
+  "author": "Bui Dang Minh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buidangminh23/Chinese-Learning.git"
+  },
+  "homepage": "https://github.com/buidangminh23/Chinese-Learning#readme",
+  "bugs": {
+    "url": "https://github.com/buidangminh23/Chinese-Learning/issues"
+  }
+}

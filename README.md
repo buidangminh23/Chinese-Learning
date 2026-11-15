@@ -12,7 +12,13 @@ A free, offline-first **PWA** for learning Chinese, covering the full **HSK 1–
 Vanilla JS · PWA (`manifest.json` + `sw.js`) · Python tooling (`jieba` POS) · deployed on Vercel.
 
 ## Run
-Static site — no build:
+With Node.js 18+, run it on your own computer (it opens your browser):
+```bash
+npx @minhspark/chinese-learning
+```
+Add `--port <n>` to pick a port or `--no-open` to skip opening the browser.
+
+Or serve the folder as a static site — no build:
 ```bash
 python -m http.server 8000   # then open http://localhost:8000
 ```
