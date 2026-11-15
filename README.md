@@ -1,6 +1,7 @@
 # 汉语学堂 · Chinese Learning
 
-<p align="center"><a href="LICENSE"><img src="https://img.shields.io/github/license/buidangminh23/Chinese-Learning" height="20" alt="license" /></a></p>
+<p align="center"><a href="https://www.npmjs.com/package/@minhspark/chinese-learning"><img src="https://img.shields.io/npm/v/@minhspark/chinese-learning?logo=npm&amp;color=CB3837" height="20" alt="npm" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/buidangminh23/Chinese-Learning" height="20" alt="license" /></a></p>
 
 A free, offline-first **PWA** for learning Chinese, covering the full **HSK 1–6** vocabulary. Pure vanilla HTML/CSS/JS — no framework, no build step.
 
